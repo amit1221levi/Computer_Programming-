@@ -1,0 +1,738 @@
+
+
+========================    Addressing mode   ============================
+
+Addressing mode is a way to specify the operand of an instruction. 
+It specifies how the operand is to be interpreted. 
+There are several addressing modes in x86_64 architecture. 
+They are:
+
+b byte (8 bits) 
+w word (16 bits)
+d double word (32 bits)
+q quad word (64 bits)
+
+
+# Operands #
+operands are the data that the instruction operates on, for example, 
+in the instruction add eax, 0x10, eax is the operand.
+
+immidiate Operand: $  It is a constant value that is used as an operand of the instruction.
+Register Operand: % It is a register that is used as an operand of the instruction.
+Memory Operand:    It is a memory location that is used as an operand of the instruction.
+
+
+# Addressing Modes #
+effective address = base + index * scale + displacement
+
+1. Absolute Addressing:  It is used to specify the absolute address of the memory operand.
+for exmaple mov index, %eax 
+
+2. Immediate Addressing: It is used to specify the immediate data of the instruction.
+mov (%rax, %rbx, 8), %eax -> eax = M[rbx*8 + rax]
+
+3. Instruction-Relative
+mov -8(%rip),%enx -> eax = M[rip - 8]   
+
+
+
+
+========================================================================================================================================================================
+
+
+###                                                           Assembly Language Programming
+
+
+========================================================================================================================================================================
+
+
+|==================================|====================|=============|========================|===========================|==========================|======================|======================|
+| Instruction                      | Source             | Destination | Result in Destination  | Source Value After        | Memory/Reg Updated       | Effective Address    | syntax               |
+|----------------------------------|--------------------|-------------|------------------------|---------------------------|--------------------------|----------------------|----------------------|
+| mov %rbx, %rax                   | %rbx               | %rax        | %rax = %rbx            | %rbx = 1                  | %rax = 1                 | N/A                  | <reg>, <reg>         |
+| mov (%rax), %rbx                 | (%rax)             | %rbx        | %rbx = M[%rax]         | (%rax) unchanged          | %rbx = M[%rax]           | (%rax)               | <mem>, <reg>         |
+| mov %eax, (%rbx)                 | %eax               | (%rbx)      | M[%rbx] = %eax         | %eax unchanged            | M[%rbx] = %eax           | (%rbx)               | <reg>, <mem>         |
+| mov $1, %rax                     | $1                 | %rax        | %rax = $1              | $1 unchanged              | %rax = $1                | N/A                  | <imm>, <reg>         |
+| mov $2, A                        | $2                 | A           | M[A] = $2              | $2 unchanged              | M[A] = $2                | A                    | <imm>, <mem>         |
+| mov A, %rax                      | A                  | %rax        | %rax = M[A]            | A unchanged               | %rax = M[A]              | A                    | <mem>, <reg>         |
+| mov %rax, A                      | %rax               | A           | M[A] = %rax            | %rax unchanged            | M[A] = %rax              | A                    | <reg>, <mem>         |
+| mov (%rax, %rbx, 8), %eax        | (%rax, %rbx, 8)    | %eax        | %eax = M[%rax + %rbx*8]| (%rax, %rbx, 8) unchanged | %eax = M[%rax + %rbx*8]  | (%rax, %rbx, 8)      | <mem>, <reg>         |
+| mov %eax, (%rax, %rbx, 8)        | %eax            | (%rax, %rbx, 8)| M[%rax + %rbx*8] = %eax| %eax unchanged            | M[%rax + %rbx*8] = %eax  | (%rax, %rbx, 8)      | <reg>, <mem>         |
+| mov 0x10(%rax), %eax             | 0x10(%rax)         | %eax        | %eax = M[%rax + 0x10]  | 0x10(%rax) unchanged      | %eax = M[%rax + 0x10]    | 0x10(%rax)           | <mem>, <reg>         |
+| mov %eax, 0x10(%rax)             | %eax               | 0x10(%rax)  | M[%rax + 0x10] = %eax  | %eax unchanged            | M[%rax + 0x10] = %eax    | 0x10(%rax)           | <reg>, <mem>         |
+|==================================|====================|=============|========================|===========================|==========================|======================|======================|
+| movxzx %bl, %ecx                 | %bl                | %ecx        | %ecx = %bl             | %bl unchanged             | %ecx = %bl               | N/A                  | <reg>, <reg>         |
+| movzbl %bl, %ecx                 | %bl                | %ecx        | %ecx = %bl             | %bl unchanged             | %ecx = %bl               | N/A                  | <reg>, <reg>         |
+| movzwl %bx, %ecx                 | %bx                | %ecx        | %ecx = %bx             | %bx unchanged             | %ecx = %bx               | N/A                  | <reg>, <reg>         |
+|==================================|====================|=============|========================|===========================|==========================|======================|======================|
+| leaq %rbx, %rax                  | %rbx               | %rax        | %rax = %rbx            | %rbx unchanged            | %rax = %rbx              | N/A                  | <reg>, <reg>         |
+| leaq (%rbx), %rax                | (%rbx)             | %rax        | %rax = %rbx            | (%rbx) unchanged          | %rax = %rbx              | (%rbx)               | <mem>, <reg>         |
+| leaq (%rax, %rbx, 8), %rax       | (%rax, %rbx, 8)    | %rax        | %rax = %rax + %rbx*8   | (%rax, %rbx, 8) unchanged | %rax = %rax + %rbx*8     | (%rax, %rbx, 8)      | <mem>, <reg>         |
+| leaq 0x10(%rax), %rax            | 0x10(%rax)         | %rax        | %rax = %rax + 0x10     | 0x10(%rax) unchanged      | %rax = %rax + 0x10       | 0x10(%rax)           | <mem>, <reg>         |
+| leaq A, %rax                     | A                  | %rax        | %rax = A               | A unchanged               | %rax = A                 | A                    | <mem>, <reg>         |
+| leaq 0x10, %rax                  | 0x10               | %rax        | %rax = 0x10            | 0x10 unchanged            | %rax = 0x10              | 0x10                 | <imm>, <reg>         |
+|==================================|====================|=============|========================|===========================|==========================|======================|======================|
+| add %rbx, %rax                   | %rbx               | %rax        | %rax = %rax + %rbx     | %rbx unchanged            | %rax = %rax + %rbx       | N/A                  | <reg>, <reg>         |
+| add (%rax), %rbx                 | (%rax)             | %rbx        | %rbx = %rbx + M[%rax]  | (%rax) unchanged          | %rbx = %rbx + M[%rax]    | (%rax)               | <mem>, <reg>         |
+| add %eax, (%rbx)                 | %eax               | (%rbx)      | M[%rbx] = M[%rbx] + %eax| %eax unchanged           |  M[%rbx] = M[%rbx] + %eax| (%rbx)               | <reg>, <mem>         |
+| add $1, %rax                     | $1                 | %rax        | %rax = %rax + $1       | $1 unchanged              | %rax = %rax + $1         | N/A                  | <imm>, <reg>         |
+| add $2, A                        | $2                 | A           | M[A] = M[A] + $2       | $2 unchanged              | M[A] = M[A] + $2         | A                    | <imm>, <mem>         |
+| add A, %rax                      | A                  | %rax        | %rax = %rax + M[A]     | A unchanged               | %rax = %rax + M[A]       | A                    | <mem>, <reg>         |
+| add %rax, A                      | %rax               | A           | M[A] = M[A] + %rax     | %rax unchanged            | M[A] = M[A] + %rax       | A                    | <reg>, <mem>         |
+|==================================|====================|=============|========================|===========================|==========================|======================|======================|
+
+==========================================================================================================================================================================================================================
+| Instruction                      | Source             | Destination    | Result in Destination                      | Source Value After  | Memory/Reg Updated                         |Effective Address| Synta        |
+==========================================================================================================================================================================================================================|
+| add %eax, (%rax, %rbx, 8)        | %eax               | (%rax, %rbx, 8)| M[%rax + %rbx*8] = M[%rax + %rbx*8] + %eax | %eax unchanged      | M[%rax + %rbx*8] = M[%rax + %rbx*8] + %eax | (%rax, %rbx, 8) | <reg>, <mem> |
+| add 0x10(%rax), %eax             | 0x10(%rax)         | %eax           | %eax = %eax + M[%rax + 0x10]               | 0x10(%rax) unchanged| %eax = %eax + M[%rax + 0x10]               | 0x10(%rax)      | <mem>, <reg> |
+| add %eax, 0x10(%rax)             | %eax               | 0x10(%rax)     | M[%rax + 0x10] = M[%rax + 0x10] + %eax     | %eax unchanged      | M[%rax + 0x10] = M[%rax + 0x10] + %eax     | 0x10(%rax)      | <reg>, <mem> |
+|==================================|====================|================|============================================|=====================|============================================|=================|==============|
+
+|==================================|====================|================|===========================================|======================|==============================|==================|=================|
+| Instruction                      | Source             | Destination    | Result in Destination                     | Source Value After   | Memory/Reg Updated           | Effective Address  | Syntax        |
+|==================================|====================|================|===========================================|======================|==============================|==================|=================|
+| sub %rbx, %rax                   | %rbx               | %rax           | %rax = %rax - %rbx                        | %rbx unchanged       | %rax = %rax - %rbx           | N/A              | <reg>, <reg>    |
+| sub (%rax), %rbx                 | (%rax)             | %rbx           | %rbx = %rbx - M[%rax]                     | (%rax) unchanged     | %rbx = %rbx - M[%rax]        | (%rax)           | <mem>, <reg>    |
+| sub %eax, (%rbx)                 | %eax               | (%rbx)         | M[%rbx] = M[%rbx] - %eax                  | %eax unchanged       | M[%rbx] = M[%rbx] - %eax     | (%rbx)           | <reg>, <mem>    |
+| sub $1, %rax                     | $1                 | %rax           | %rax = %rax - $1                          | $1 unchanged         | %rax = %rax - $1             | N/A              | <imm>, <reg>    |
+| sub $2, A                        | $2                 | A              | M[A] = M[A] - $2                          | $2 unchanged         | M[A] = M[A] - $2             | A                | <imm>, <mem>    |
+|==================================|====================|================|===========================================|======================|==============================|==================|=================|
+| inc %eax                         | %eax               | %eax           | %eax = %eax + 1                           | %eax = 1             | %eax = %eax + 1              | N/A              | <reg>           |
+| dec %eax                         | %eax               | %eax           | %eax = %eax - 1                           | %eax = 1             | %eax = %eax - 1              | N/A              | <reg>           |
+|==================================|====================|================|===========================================|======================|==============================|==================|=================|
+| sal %eax, 1                      | %eax               | %eax           | %eax = %eax << 1                          | %eax = 1             | %eax = %eax << 1             | N/A              | <reg>           |
+| sal %eax, %ecx                   | %eax               | %ecx           | %ecx = %eax << %cl                        | %eax = 1             | %ecx = %eax << %cl           | N/A              | <reg>, <reg>    |
+| sal %eax, (%rax)                 | %eax               | (%rax)         | M[%rax] = M[%rax] << %eax                 | %eax = 1             | M[%rax] = M[%rax] << %eax    | (%rax)           | <reg>, <mem>    |
+|==================================|====================|================|===========================================|======================|==============================|==================|=================|
+| shr %eax, 1                      | %eax               | %eax           | %eax = %eax >> 1                          | %eax = 1             | %eax = %eax >> 1             | N/A              | <reg>           |
+| shr %eax, %ecx                   | %eax               | %ecx           | %ecx = %eax >> %cl                        | %eax = 1             | %ecx = %eax >> %cl           | N/A              | <reg>, <reg>    |
+| shr %eax, (%rax)                 | %eax               | (%rax)         | M[%rax] = M[%rax] >> %eax                 | %eax = 1             | M[%rax] = M[%rax] >> %eax    | (%rax)           | <reg>, <mem>    |
+|==================================|====================|================|===========================================|======================|==============================|==================|=================|
+| sar %eax, 1                      | %eax               | %eax           | %eax = %eax >> 1                          | %eax = 1             | %eax = %eax >> 1             | N/A              | <reg>           |
+| sar %eax, %ecx                   | %eax               | %ecx           | %ecx = %eax >> %cl                        | %eax = 1             | %ecx = %eax >> %cl           | N/A              | <reg>, <reg>    |
+|==================================|====================|================|===========================================|======================|==============================|==================|=================|
+| rol %eax, 1   left shift         | %eax               | %eax           | %eax = %eax << 1 + CF                     | %eax = 1             | %eax = %eax << 1 + CF        | N/A              | <reg>           |
+| ror %eax, 1                      | %eax               | %eax           | %eax = %eax >> 1 + CF                     | %eax = 1             | %eax = %eax >> 1 + CF        | N/A              | <reg>           |
+|==================================|====================|================|===========================================|======================|==============================|==================|=================|
+| mul %eax, %ebx                   | %eax               | %ebx           | %ebx = %ebx * %eax                        | %eax = 1             | %ebx = %ebx * %eax           | N/A              | <reg>, <reg>    |
+| mul $0x10, %eax                  | $0x10              | %eax           | %eax = %eax * 0x10                        | $0x10 unchanged      | %eax = %eax * 0x10           | N/A              | <imm>, <reg>    |
+|==================================|====================|================|===========================================|======================|==============================|==================|=================|
+| imul %eax, %ebx                  | %eax               | %ebx           | %ebx = %ebx * %eax                        | %eax = 1             | %ebx = %ebx * %eax           | N/A              | <reg>, <reg>    |
+| imul $0x10, %eax, %ebx           | $0x10              | %eax, %ebx     | %ebx = %eax * 0x10                        | $0x10 unchanged      | %ebx = %eax * 0x10           | N/A          | <imm>, <reg>, <reg> |
+|==================================|====================|================|===========================================|======================|==============================|==================|=================|
+| div %eax, %ebx                   | %eax               | %ebx           | %ebx = %ebx / %eax                        | %eax = 1             | %ebx = %ebx / %eax           | N/A              | <reg>, <reg>    |
+| div $0x10, %eax                  | $0x10              | %eax           | %eax = %eax / 0x10                        | $0x10 unchanged      | %eax = %eax / 0x10           | N/A              | <imm>, <reg>    |
+|==================================|====================|================|===========================================|======================|==============================|==================|=================|
+| cbw convert byte to word         | %al                | %ax            | %ax = %al                                 | %al = 1              | %ax = %al                    | N/A              | <reg>, <reg>    |
+| cwde convert word to double word | %ax                | %eax           | %eax = %ax                                | %ax = 1              | %eax = %ax                   | N/A              | <reg>, <reg>    |
+| cdqe convert double word to quad | %eax               | %rax           | %rax = %eax                               | %eax = 1             | %rax = %eax                  | N/A              | <reg>, <reg>    |
+|==================================|====================|================|===========================================|======================|==============================|==================|=================|
+
+
+
+
+========================================================================================================================================================================
+
+
+###                                                                   FLAGS
+
+
+========================================================================================================================================================================
+
+
+|==============================================================================================|
+|                                R-Flags Register:                                             |
+|==============================================================================================|
+| -The R-flags register is a 64-bit register that is used to store the status of the processor.|
+| - It is divided into two parts: EFLAGS and RFLAGS.                                           |
+|==============================================================================================|
+| EFLAGS:                                      | RFLAGS:                                       |
+===============================================================================================|
+| 32-bit register that is used to              | 64-bit register that is used to               |
+| store the status of the processor.           | store the status of the processor.            |
+==================================================================================================|
+|31|30|29|28|27|26|25|24|23|22|21|20 |19 |18|17|16|15|14|13 12|11|10|9 |8 |7 |6 |5 |4 |3 |2 |1 |0 |
+| 0| 0| 0| 0| 0| 0| 0| 0| 0| 0|ID|VIP|VIF|AC|VM|RF| 0|NT|IOPL |OF|DF|IF|TF|SF|ZF|0 |AF|0 |PF|1 |CF|
+==================================================================================================|
+
+- Arithmetic flags 
+  - CF: Carry Flag
+  - PF: Parity Flag
+  - AF: Adjust Flag
+  - ZF: Zero Flag
+  - SF: Sign Flag
+  - OF: Overflow Flag
+
+- System flags
+  - TF: Trap Flag
+  - IF: Interrupt Enable Flag
+  - DF: Direction Flag
+  - IOPL: I/O Privilege Level
+
+
+
+
+
+========================================================================================================================================================================
+
+
+                                                                          ### JMP ###
+
+
+========================================================================================================================================================================
+
+===============================  Control Flow  ===============================
+
+----------------------------------------------------------------------------------------------
+###                           JMP                              ###
+----------------------------------------------------------------------------------------------
+cmp src dst -> dst-src =  |result | ZF | SF | OF | CF | PF | AF |
+                        = |  0    |  1 |  0 |  0 |  0 |  0 |  0 | -> dst = src   
+                        > |  0    |  0 |  1 |  0 |  0 |  0 |  0 | -> dst > src    
+                        < |  0    |  0 |  0 |  0 |  1 |  0 |  0 | -> dst < src      
+
+
+----------------------------------------------------------------------------------------------
+###                           TEST                             ###
+----------------------------------------------------------------------------------------------
+test src dst -> src & dst =  |result | ZF | SF | OF | CF | PF |
+                        00   |  0    |  1 |  0 |  0 |  0 |  0 | -> src & dst = 0
+                        01   |  0    |  0 |  0 |  0 |  1 |  0 | -> src & dst < 0
+                        10   |  0    |  0 |  0 |  0 |  1 |  0 | -> src & dst < 0
+                        11   |  0    |  0 |  1 |  0 |  0 |  0 | -> src & dst > 0
+
+==============================================================================
+
+
+ - Absolute jump
+--------------------------------
+
+  jmp *<reg> —> jump to M[reg] // absolute indirect jump       
+  jmp *%rax
+
+  jmp *<mem> —> jump to M[mem] // absolute indirect jump        
+  jmp *0x10 
+
+  jmp *<imm> —> jump to immediate address // absolute indirect jump
+  jmp *0x10
+
+
+  - Relative Jump
+--------------------------------
+  jmp <label> —> jump to label //  relative jump rip = rip + dist
+  jmp <imm> —> jump to immediate address // relative jump rip = rip + dist
+
+
+  - Conditional Jump
+--------------------------------
+  j<condition> *<reg> —> jump to address in register if condition is true
+  jbe dst 
+
+
+====================================================================================================
+ | Condition | Description              |       FLAGS        |     test        |        cmp        |
+====================================================================================================
+ | je , jz   |  jump if equal           | ZF = 1             | dst&src = 0     |  dst = src        |
+ | jnz , jne |  jump if not zero        | ZF = 0             | dst&src != 0    |  dst != src       |
+ | js        |  jump if sign            | SF = 1             | dst < 0         |  dst < 0          |
+ | jns       |  jump if not sign(+)     | SF = 0             | dst > 0         |  dst > 0          |
+ | jg        | jump if greater than sign| ZF=0 and SF = OF   | dst&src > 0     |  dst > src        |
+ | jge       | jump if g OR e to sign   | SF = OF            | dst&src >= 0    |  dst >= src       |
+ | jl        | jump if less than sign   | SF != OF           | dst&src < 0     |  dst < src        |
+ | jle       | jump if l OR e to sign   | ZF = 1 or SF != OF | dst&src <= 0    |  dst <= src       |
+ | ja        | jump if above to sign    | CF = 0 and ZF = 0  | dst&src > 0     |  dst > src        |
+ | jae       | jump if above or equal   | CF = 0             | dst&src >= 0    |  dst >= src       |
+ | jb        | jump if below to sign    | CF = 1             | dst&src < 0     |  dst < src        |
+ | jbe       | jump if below or equal   | CF = 1 or ZF = 1   | dst&src <= 0    |  dst <= src       |
+====================================================================================================
+
+============================================================================================================
+| Condition         |      FLAGS             |    Operation           |     test        |        cmp       |
+============================================================================================================
+| cmovz src,dst     | if ZF = 1            |then|  dst = src          | dst&src = 0     |  dst = src       |
+| cmovne src,dst    | if ZF = 0            |then|  dst = src          | dst != src      |  dst != src      |     
+| cmovg src,dst     | if SF = OF           |then|  dst = src          | dst > src       |  dst > src       |   
+| cmovge src,dst    | if SF = OF or ZF = 1 |then|  dst = src          | dst >= src      |  dst >= src      |
+| cmovl src,dst     | if SF != OF          |then|  dst = src          | dst < src       |  dst < src       |
+| cmovle src,dst    | if ZF = 1 or SF != OF|then|  dst = src          | dst <= src      |  dst <= src      |
+| cmovb src,dst     | if CF = 1            |then|  dst = src          | dst < src       |  dst < src       |
+| cmovae src,dst    | if CF = 0            |then|  dst = src          | dst >= src      |  dst >= src      |
+| cmovbe src,dst    | if CF = 1 or ZF = 1  |then|  dst = src          | dst <= src      |  dst <= src      |
+============================================================================================================        
+
+
+===================================================================================|
+###                                     Optimization:                              |
+===================================================================================|
+------------------------------- = -------------------------|-----------------------|
+movl num, %ebx                  | leal 5(num), %ebx        | ebx = num + 5         |     *
+addl $5, %ebx                   |                          |                       |     * IMPORTANT
+movl %ebx, num                  |                          |                       |     *
+--------------------------------|--------------------------|-----------------------|
+movl num, %ebx                  | leal -5(num), %ebx       | ebx = num - 5         |
+subl $5, %ebx                   |                          |                       |
+movl %ebx, num                  |                          |                       |
+--------------------------------|--------------------------|-----------------------|
+movl num, %ebx                  | leal 1(num), %ebx        | ebx = num + 1         |
+incl %ebx                       |                          |                       |
+movl %ebx, num                  |                          |                       |
+--------------------------------|--------------------------|-----------------------|
+movl num, %ebx                  | leal -1(num), %ebx       | ebx = num - 1         |
+decl %ebx                       |                          |                       |
+movl %ebx, num                  |                          |                       |
+--------------------------------|--------------------------|-----------------------|
+movl edi, %eax                  |leal (%edi, %esi, 10),%eax| eax = edi + esi*10    |
+--------------------------------|--------------------------|-----------------------|
+movl (esi, edi, 4), %eax        |leal (%esi, %edi, 4),%eax | eax = esi + edi*4     |
+--------------------------------|--------------------------|-----------------------|
+
+
+
+=============================== Calling Conventions ===============================
+# CALL #
+call <label> —> call the function at label
+- relative jump to the address of the function
+- rip += dist
+
+call *<reg> —> call the function at the address in register
+- absolute indirect jump to the address of the function
+- rip = reg'
+
+Ret -> return from the function
+
+===================================================================================|
+----------------
+#   PRE CALL   #
+----------------
+
+// Variables 
+movq num, %reg              // Pass Registers var:  rdi rsi rdx rcx r8 r9
+pushq param7...             // Pass Var on Stack:  param7...
+
+// Registers backup(if will be use in the function)
+pushq %rax %rdi %rsi %rdx %rcx %r8 - %r11        // Caller-saved: rax rdi rsi rdx rcx r8-r11
+
+call <label> —> call the function at label
+
+----------------
+#   PROLOGUE   #
+----------------
+// Save the base pointer RBP (if the function will use the stack)
+pushq %rbp                 // Save the base pointer RBP
+movq %rsp, %rbp           // Set RBP to the current stack pointer RSP=RBP
+
+// Save the callee-saved registers (if use)
+pushq %reg                // rbx rsp rbp r12 - r15
+
+// Allocate space for local variables
+sub $(4,8), %rsp          // (l) int=4, (q)long=8 , to access: -4(%rbp)
+
+----------------
+#   EPILOGUE   #
+----------------
+
+// Recover RBP
+movq %rbp, %rsp           // Restore the stack pointer
+popq %rbp                 // Restore the base pointer
+
+// Restore the callee-saved registers
+popq %reg                 // rbx rsp rbp r12 - r15 if was in order push 1,2,3 pop 3,2,1
+
+movq %rdi, %rax           // Return value in rax
+add $(4,8), %rsp          // clean the stack
+ret                       // Return from the function
+
+# POST CALL #
+popq %rax %rdi %rsi %rdx %rcx %r8 - %r11  //Restore the caller-saved registers
+popq param7...                           //Restore the stack
+
+===================================================================================|
+
+
+
+
+
+========================================================================================================================================================================
+###                                                                           ENCDOING                                                                               ###
+========================================================================================================================================================================
+
+Operation encoding:
+
+Legacy Prefix: Support for 16-bit operand size, 32-bit operand size, and segment override.
+
+REX Prefix: Support for 64-bit operand size, additional registers, and additional addressing modes.
+
+Opcode: Specifies the operation to be performed by the instruction.
+
+ModR/M byte: Specifies the operand(s) of the instruction.
+
+SIB byte: Specifies the operand(s) of the instruction.
+
+Displacement: Specifies the displacement of the memory operand.
+
+Immediate: Specifies the immediate data of the instruction.
+
+
+------------------------------------------------------------------------------------------------------|
+| Legacy Prefix  | REX Prefix  | Opcode    | ModR/M   | SIB      | Displacement  | Immediate          |
+-----------------|-------------|-----------|----------|----------|---------------|--------------------|
+| Optional       | Optional    | Required  | Required | Optional | Optional      | Optional           |
+|----------------|-------------|-----------|----------|----------|---------------|--------------------|
+| 0-4 bytes      | 0-1 byte    | 1-3 bytes | 1 byte   | 0-1 byte | 0-4 bytes     | 0-4 bytes          |
+|----------------|-------------|-----------|----------|----------|---------------|--------------------|
+| 0x66           | 0x48        | 0x0f      | 0x1f     | 0x00     | 0x00 0x00 0x00| 0x00 0x00 0x00 0x00|
+|----------------|-------------|-----------|----------|----------|---------------|--------------------|
+|   L            |     R       |     O     |    M     |    S     |      D        |        I           |
+------------------------------------------------------------------------------------------------------|
+
+| operation      |  Operand size | Address size |  Instruction  
+------------------------------------------------
+| mov %rax, A    | 64-bit        | 64-bit       |  movq q long
+
+
+
+
+
+==============================================================================|---------------------|
+|| Legacy Prefix ||                             Optional | size 0-4 bytes     |size:                |
+------------------------------------------------------------------------------|                     |  
+ Support for 16-bit operand size, 32-bit operand size, and segment override.  |---------------------|
+==============================================================================|
+1) if L = 0x66, 0x67 :                                                        |                             
+------------------------------------------------------------------------------|
+    L = 0x66 :                                                                |
+    --------------------------------------------------------------------------|
+    Operand size = 16-bit    movw w short                                     |
+    Address size = 16-bit    movw w short                                     |
+    --------------------------------------------------------------------------|
+    L = 0x67 :                                                                |
+    --------------------------------------------------------------------------|
+    Operand size = 32-bit   movl l int                                        |
+    Address size = 32-bit   movl l int                                        |
+    --------------------------------------------------------------------------|
+  else:                                                                       |
+    --------------------------------------------------------------------------|
+    Operand size = 64-bit   movq q long                                       |
+    Address size = 64-bit   movq q long                                       |
+==============================================================================|
+|| REX Prefix ||                                    Optional  | size 0-1 byte |
+------------------------------------------------------------------------------|
+  Support for 64-bit operand size, additional registers, and additional       |
+   addressing modes.                                                          |
+==============================================================================|
+2) if start with R = 0x4(number)  :                                           |    
+   ---------------------------------------------------------------------------|
+    for:  number = 0-15 -> (0,1 )= (_,_,_,_)  do:                             |
+    --------------------------------------------------------------------------|
+      (1,_,_,_) = REX.W ->  64-bit operand size, movq q long                  |
+      (_,1,_,_) = REX.R ->  additional registers, convert REG field to 4-bit  |
+      (_,_,1,_) = REX.X ->  additional registers, convert R/M field to 4-bit  |
+      (_,_,_,1) = REX.B ->  additional registers, convert SIB field to 4-bit  |
+==============================================================================|----------------------------|
+                                                                              |opcode:                     |
+|| Opcode ||                                                                  |----------------------------|
+                                                                              |translation:                |
+------------------------------------------------------------------------------|----------------------------|
+  Required  | size 1-3 bytes |                                                |           0 - 2A           |
+------------------------------------------------------------------------------|----------------------------|  
+  Specifies the operation to be performed by the instruction.                 |00/r | add r8,r/m8   | add  |
+==============================================================================|01/r | add r16,r/m16#| add  |
+3) for O = (w1) or (w1 , w2 )                                                 |02/r | add r/m8,r8   | add  |            
+   ---------------------------------------------------------------------------|03/r | add r/m16,r16#| add  |
+    w1 != 0x0f :                  : 1-byte long (example 0x01)                |28/r | sub r8,r/m8   | sub  |
+    w1 = 0x0f, w2 = 0x38 or 0x3A  : 3-byte long (example 0x0f 0x38 0x01)      |29/r | sub r16,r/m16#| sub  |
+    w1 = 0x0f, w2 != 0x38 or 0x3A : 2-byte long (example 0x0f 0x01)           |2A/r | sub r/m8,r8   | sub  |         
+------------------------------------------------------------------------------|----------------------------|-|
+|         2B - 80            |   |          81 - 85              |     |              85  - FF               |      
+-------------------------------------------------------------------------------------------------------------| 
+|2B/r | sub r/m16,r16#|  sub |   |81/0 |  add r/m16,imm16 | add  |     |85/r |  test r16,r/m16#    | test    |     
+|38/r | cmp r8,r/m8   |  cmp |   |81/5 |  sub imm16,r/m16 | sub  |     |88/r | mov r8,r/m8         | mov     |
+|39/r | cmp r16,r/m16#|  cmp |   |81/5 |sub imm32#,r/m32# | sub  |     |8A/r | mov r/m8,r8         | mov     |
+|3A/r | cmp r/m8,r8   |  cmp |   |81/7 | cmp imm16,r/m16##| cmp  |     |8B/r | mov r/m16,r16#      | mov     |
+|3B/r | cmp r/m16,r16#|  cmp |   |83/0 |  add imm8,r/m16# | add  |     |8D/r | lea m,r16#          | lea     |
+|80/0 | add r/m8,imm8 |  add |   |83/5 |sub imm8#,r/m16#  | sub  |     |B0+r | mov imm8,r8         | mov     |
+|80/5 | sub imm8,r/m8 |  sub |   |83/7 |cmp imm8#,r/m16#  | cmp  |     |B8+r | mov imm16,r16#      | mov     |
+|80/7 | cmp imm8,r/m8 |  cmp |   |84/r | test r8,r/m8     | test |     |C6/0 | mov imm8,r/m8       | mov     |
+                                                                       |C7/0 | mov imm16,r/m16     | mov     |
+                                                                       |C7/0 | mov imm32#,r/m32#   | mov     |
+                                                                       |E9 rel 123 | jmp rel 132   | jmp     |
+                                                                       |EB rel 18  | jmp rel 18    | jmp     |
+                                                                       |F6/0 | test imm8,r/m8      | test    |
+                                                                       |F7/0 | test imm16,r/m16    | test    |
+                                                                       |F7/0 | test imm32#,r/m32#  | test    |
+                                                                       |FF/4 | jmp r/m64           | jmp     |
+-------------------------------------------------------------------------------------------------------------|
+==============================================================================|     
+                             || ModR/M byte ||                                |
+                                                                              |
+------------------------------------------------------------------------------|
+  Required  | size 1 byte   |                                                 |
+------------------------------------------------------------------------------|
+  Specifies the operand(s) of the instruction and the addressing mode.        |
+==============================================================================|
+4) for M = | MOD(_,_) | REG/OPCODE | R/M| :       OPCODE FROM ABOVE:   "str"  |
+           | 00       | 000        | 000| :       example F7/N                |
+------------------------------------------------------------------------------|-------------------------------|
+    --------------------------------------------------------------------------| R/M = (   ,   ,   )           |
+    MOD = (_,_) -> (reg) reg or mem find with R/M                             |                               |
+    --------------------------------------------------------------------------| if 100 there is SIB           | 
+                                                                              |-------------------------------|   
+            |-----------------------------------------------------------------|-------------------------------|
+            | MOD = (0,0)  -> (reg) reg find with R/M                         | reg:                          | 
+            ------------------------------------------------------------------|-------------------------------|
+                 for R/M= 000 rax| 001 rcx |010 rdx| 011 rbx | 100 rsp | 110 rbp | 111 rdi | 110 rbp | 111 rdi|     
+                 ---------------------------------------------------------------------------------------------|
+            |-----------------------------------------------------------------|-------------------------------|
+            | MOD = (0,1)  -> disp8(reg) reg find with R/M                    | reg:                          |
+            ------------------------------------------------------------------|-------------------------------|
+                 dist = 8-bit signed displacement                             | disp:                         |
+                 -------------------------------------------------------------|-------------------------------|
+                 for R/M= 000 8-bit ax | 001 cx | 010 dx | 011 bx | 100 sp | 110 bp | 111 si | 110 bp | 111 di|   
+                 ---------------------------------------------------------------------------------------------|
+            |-----------------------------------------------------------------|-------------------------------|
+            | MOD = (1,0)  -> disp32(reg) reg find with R/M                   | reg                           |
+            ------------------------------------------------------------------|-------------------------------|
+                 dist = 32-bit signed displacement                            | disp:                         |
+                 -------------------------------------------------------------|-------------------------------|
+                 for R/M=32-bit 000 eax| 001 ecx| 010 edx| 011 ebx| 100 esp| 110 ebp| 111 esi| 110 ebp|111 edi|
+                 ---------------------------------------------------------------------------------------------|
+            |-----------------------------------------------------------------|-------------------------------|
+            | MOD = (1,1)  -> reg find with R/M                               | reg:                          |
+            |-----------------------------------------------------------------|-------------------------------|
+                 for R/M=000 64-bit rax| 001 rcx| 010 rdx| 011 rbx| 100 rsp| 110 rbp| 111 rsi| 110 rbp|111 rdi|
+                 ---------------------------------------------------------------------------------------------|
+        |---------------------------------------------------------------------|-------------------------------|
+         if R/M = 100 -> SIB byte                                             |                               |
+        |---------------------------------------------------------------------|-------------------------------|
+            SIB = | SCALE(_,_) | INDEX(_,_) | BASE(_,_) |              |SIB:  |{ (  ,  ), (  ,  ) ,(  ,  ,  )}|
+            ------------------------------------------------------------------|-------------------------------|
+              | SCALE(_,_) | 00 -> 1 | 01->2 | 10->4 | 11->8  | scale:        | SCALE:                        |             
+              ------------------------------------------------------------------------------------------------|
+              | INDEX(_,_) | 000 -> rax | 001 -> rcx | 010 -> rdx | 011 -> rbx| INDEX:                        |
+              ------------------------------------------------------------------------------------------------|
+              | BASE(_,_)  | 100 -> rsp | 101 -> rbp | 110 -> rsi | 111 -> rdi| BASE:                         |
+              ------------------------------------------------------------------------------------------------|
+              | DISP if MOD = | (0,1) -> 9-bit | (1,0) -> 32-bit |            |DISP:          for 10 L indian!|
+              ------------------------------------------------------------------------------------------------|
+              | FINAL ADDRESS = BASE + INDEX * SCALE + DISP                   |                               |
+              ------------------------------------------------------------------------------------------------|
+     =========================================================================================================|
+     REG = (_,_,_) ->           size from legecy                              |  REG:                         |
+      ------------------------------------------------------------------------|  size:                        |
+      ------------------------------------------------------------------------|-------------------------------|
+      000 -> 8-bit al | 001 -> cl | 010 -> dl | 011 -> bl | 100 -> ah | 101 -> ch | 110 -> dh | 111 -> bh     |
+      --------------------------------------------------------------------------------------------------------|
+      000 -> 16-bit ax | 001 -> cx | 010 -> dx | 011 -> bx | 100 -> sp | 101 -> bp | 110 -> si | 111 -> di    |
+      --------------------------------------------------------------------------------------------------------|
+      000 -> 32-bit eax| 001 -> ecx| 010 -> edx| 011 -> ebx| 100 -> esp| 101 -> ebp| 110 -> esi| 111 -> edi   |
+      --------------------------------------------------------------------------------------------------------|
+      000 -> 64-bit rax| 001 -> rcx| 010 -> rdx| 011 -> rbx| 100 -> rsp| 101 -> rbp| 110 -> rsi| 111 -> rdi   |
+      --------------------------------------------------------------------------------------------------------|
+immidiate: 0-4 bytes                                                         |                                |
+=============================================================================|================================|
+
+example 8b 4c 83 0f = movl 0xf(%rbp,%rcx,4), %ecx
+L = - 
+R = - 
+O = 8b 
+M = 4c = 01 001 100
+      MOD = 01 = disp8(reg) 
+      REG = 001 = ecx
+      SIB = 100 = 100
+    83 = 1000 0011
+     scale = 10 = 4
+     index = 000 = rax
+     base = 100 = rbx
+D = 0f = 0000 1111
+
+mov disp8(reg, reg, scale), reg
+
+mov 0xf(%rbp,%rcx,4), %ecx
+     
+              
+
+                      
+
+
+#================================= x86 Instruction Encoding =================================
+Algorithm for x86 instruction Encoding:
+```
+
+
+
+======================= x86_64 Instruction Encoding =======================
+Algorithm for x86_64 instruction Encoding:
+```
+1. Next byter is legacy prefix? yes -> 2. no -> 3.
+2. decode legacy prefix. -> 1.
+3. Next byte is REX prefix?(start with 0100, 0x4) yes -> 4. no -> 5.
+4. decode REX prefix. -> 5.
+5. Decode opcode. -> 6.
+6. Does opcode have ModR/M byte? yes -> 7. no -> 8.
+7. Decode ModR/M byte possible SIB byte. -> 9.
+8. Does Mod require displacement? yes -> 10. no -> 10.
+9. Decode displacement. -> 10.
+10. Does opcode require immediate? yes -> 11. no -> 12.
+11. Decode immediate. -> 12.
+12. Done.
+```
+Example:
+```
+Optional        Optional     Required  Required  Optional  Optional       Optional
+legacy prefix   REX prefix    opcode    ModR/M    SIB    displacement    immediate
+0x66            0x48          0x0f      0x1f      0x00   0x00 0x00 0x00   0x00 0x00 0x00 0x00
+
+Operand: It is the data that the instruction operates on.
+
+# Legacy Prefix  #
+Definition:
+    It is used to specify the operand size, address size, and segment register override.
+    For example, 0x66 is used to specify that the operand size is 16-bit.
+
+  0x66    Operand size override
+  0x67    Address size override
+  0x2e    CS segment override
+  0x36    SS segment override
+  0x3e    DS segment override
+  0x26    ES segment override
+  0x64    FS segment override
+  0x65    GS segment override
+
+
+# REX Prefix  #
+Definition:
+    It is used to specify the operand size, address size, and segment register override.
+    For example, 0x66 is used to specify that the operand size is 16-bit.
+
+  0x40 + 0x0-0xf    REX prefix
+  0x40 + 0x0-0x7    REX.W
+  0x40 + 0x0-0x7    REX.R
+  0x40 + 0x0-0x7    REX.X
+  0x40 + 0x0-0x7    REX.B
+
+
+# Opcode  #
+Definition:
+    It is used to specify the operation to be performed by the instruction.
+    For example, 0x0f is used to specify that the instruction is a two-byte opcode.
+
+  0x0f    Two-byte opcode
+  0x0f    Three-byte opcode
+  0x0f    Four-byte opcode
+  0x0f    Five-byte opcode
+
+
+#  ModR/M byte  #
+Definition:
+    It is used to specify the operand(s) of the instruction for example source(register) 
+    and destination(register or memory).
+    It is divided into three fields: Mod, REG, and R/M. Mod specifies the addressing mode, 
+    REG specifies the register to be used, and R/M specifies the operand to be used.
+
+  REX.R    REG field    Register
+  0/1       000            ax/r8
+  0/1       001            cx/r9
+  0/1       010            dx/r10
+  0/1       011            bx/r11
+  0/1       100            sp/r12
+  0/1       101            bp/r13
+  0/1       110            si/r14
+  0/1       111            di/r15
+
+
+# SIB byte  #
+Definition:
+    It is used to specify the operand(s) of the instruction for example 
+    source(register) and destination(register or memory).
+    It is divided into three fields: Mod, REG, and R/M, and is used 
+    when the base register is ebp/r13(used for stack operations)
+
+  REX.B    R/M field    Register
+  0/1       000            al/r8b  
+  0/1       001            cl/r9b
+  0/1       010            dl/r10b
+  0/1       011            bl/r11b
+  0/1       100            ah/r12b
+  0/1       101            ch/r13b
+  0/1       110            dh/r14b
+  0/1       111            bh/r15b
+
+
+ModR/M is that siba is used when the base register is 
+ebp/r13(used for stack operations) and ModR/M(used for general purpose registers).
+
+
+
+# Displacement  #
+Definition:
+    It is used to specify the displacement of the memory operand(where the data is stored).
+    For example, 0x00 0x00 0x00 0x00 is used to specify that the displacement is 0.
+
+  0x00 0x00 0x00 0x00    Displacement
+
+
+# Immediate  #
+Definition:
+    It is used to specify the immediate data of the instruction.
+    For example if the instruction is add eax, the immediate data is 0x00 0x00 0x00 0x01. 
+    and if the instruction is add eax 0x10, the immediate data is 0x11.
+
+    0x00 0x00 0x00 0x00    Immediate
+```
+
+
+
+
+===========================================================================
+
+
+===================   ELF  ===================
+ELF (Executable and Linkable Format) is a standard file format for executables, object code, shared libraries, and core dumps.
+
+
+# ELF struct 
+
+ELF Header: It is the first 64 bytes of the file and contains the basic information about the file:
+  - Magic number: It is a 4-byte sequence that identifies the file as an ELF file.
+  - File type: It specifies the type of the file, for example, executable, shared object, etc.
+  - Machine: It specifies the architecture of the file, for example, x86_64, i386, etc.
+  - Entry point: It specifies the address of the entry point of the program.
+  - Program header table offset: It specifies the offset of the program header table.
+  - Section header table offset: It specifies the offset of the section header table.
+  - Flags: It specifies the flags of the file, for example, whether it is executable, readable, writable, etc.
+  - Size of ELF header: It specifies the size of the ELF header.
+  - Size of program header: It specifies the size of the program header.
+  - Number of program headers: It specifies the number of program headers.
+  - Size of section header: It specifies the size of the section header.
+  - Number of section headers: It specifies the number of section headers.
+  - Section header string table index: It specifies the index of the section header string table.
+
+Program Header Table: It is an array of program headers and contains the information about the segments of the file:
+  - Type: It specifies the type of the segment, for example, loadable, dynamic, etc.
+  - Offset: It specifies the offset of the segment in the file.
+  - Virtual address: It specifies the virtual address of the segment in memory.
+  - Physical address: It specifies the physical address of the segment in memory.
+  - File size: It specifies the size of the segment in the file.
+  - Memory size: It specifies the size of the segment in memory.
+  - Flags: It specifies the flags of the segment, for example, whether it is readable, writable, executable, etc.
+  - Alignment: It specifies the alignment of the segment.
+
+
+    .text section: It contains the executable code of the program.
+    .rodata section: It contains the read-only data of the program.
+    .data section: It contains the initialized data of the program.
+    Section Header Table: It is an array of section headers and contains the information about the sections of the file like in the program header table.
+
+    
+
+
+
+
+
+ T 4 Page 13 
+
+
+
+
+
